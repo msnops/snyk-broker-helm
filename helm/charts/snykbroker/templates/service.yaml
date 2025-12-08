@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "snykbroker.fullname" . }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app: {{ template "snykbroker.name" . }}
+    release: {{ .Release.Name }}
+  ports:
+    - port: 80                 # service port
+      targetPort: {{ .Values.service.targetPort }} # container port
+      nodePort: {{ .Values.service.nodePort }}    # NodePort
+

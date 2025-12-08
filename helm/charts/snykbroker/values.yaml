@@ -1,0 +1,33 @@
+replicaCount: 4
+
+image:
+  repository: 538215755842.dkr.ecr.eu-west-2.amazonaws.com/snyk/snyk-broker
+  tag: latest
+  pullPolicy: IfNotPresent
+  pullSecret: ecr-secret
+
+service:
+  type: NodePort
+  targetPort: 8080
+  nodePort: 30080
+
+resources: {}
+
+securityContext: {}
+
+deploymentStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 25%
+    maxUnavailable: 0
+
+SNYK_API_HOSTNAME: https://api.snyk.io
+TENANT_ID: ""
+Organization_ID: ""
+
+podLabels: {}
+
+ingress:
+  enabled: true
+  host: snykbroker.local
+

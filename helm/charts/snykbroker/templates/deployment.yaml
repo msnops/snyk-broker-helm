@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "snykbroker.fullname" . }}
+  labels:
+    app: {{ template "snykbroker.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: {{ template "snykbroker.name" . }}
+      release: {{ .Release.Name }}
+
+  {{- if .Values.deploymentStrategy }}
+  strategy:
+{{ toYaml .Values.deploymentStrategy | indent 4 }}
+  {{- end }}
+
+  template:
+    metadata:
+      labels:
+        app: {{ template "snykbroker.name" . }}
+        release: {{ .Release.Name }}
+      {{- with .Values.podLabels }}
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+
+    spec:
+      {{- if .Values.securityContext }}
+      securityContext:
+{{ toYaml .Values.securityContext | indent 8 }}
+      {{- end }}
+
+      {{- if or .Values.image.pullSecret .Values.image.pullSecrets }}
+      imagePullSecrets:
+      {{- if .Values.image.pullSecret }}
+        - name: {{ .Values.image.pullSecret }}
+      {{- end }}
+      {{- if .Values.image.pullSecrets }}
+{{ toYaml .Values.image.pullSecrets | indent 8 }}
+      {{- end }}
+      {{- end }}
+
+      containers:
+        - name: {{ .Chart.Name }}
+          image: {{ include "snykbroker.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+
+          env:
+            - name: SNYK_HELM_CHART_VERSION
+              value: {{ .Chart.Version | replace "+" "-" }}
+
+            - name: SNYK_API_HOSTNAME
+              value: {{ .Values.SNYK_API_HOSTNAME }}
+
+            - name: TENANT_ID
+              value: {{ .Values.TENANT_ID }}
+
+            - name: Organization_ID
+              value: {{ .Values.Organization_ID }}
+
+            - name: SNYK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: snyk-token          # updated lowercase name
+                  key: SNYK_TOKEN_KEY
+
+            - name: GITLAB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: gitlab-token        # updated lowercase name
+                  key: GITLAB_TOKEN_KEY
+
+            - name: CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: client-id           # updated lowercase name
+                  key: CLIENT_ID_KEY
+
+            - name: CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: client-secret       # updated lowercase name
+                  key: CLIENT_SECRET_KEY
+
