@@ -1,0 +1,3 @@
+remove line 32 in deployment.yaml which is related to config.yaml
+line 57 containerPort: {{ .Values.service.targetPort }}
+modified service section in values.yaml
