@@ -5,7 +5,7 @@ pipeline {
         KUBE_CONFIG_PATH = '/home/jenkins/.kube/config' // adjust to your kubeconfig
         HELM_RELEASE = 'snyk-broker'
         HELM_NAMESPACE = 'default'
-        CHART_PATH = '.helm/charts/snykbroker' // path to your Helm chart in the repo
+        CHART_PATH = './helm/charts/snykbroker' // path to your Helm chart in the repo
     }
 
     stages {
