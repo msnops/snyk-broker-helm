@@ -12,7 +12,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'git@github.com:msnops/snyk-broker-helm.git',
+                    url: 'https://github.com/msnops/snyk-broker-helm.git',
                     credentialsId: 'jenkins-github'
             }
         }
