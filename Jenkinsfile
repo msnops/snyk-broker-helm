@@ -13,7 +13,7 @@ pipeline {
             steps {
                 git branch: 'main',
                     url: 'git@github.com:msnops/snyk-broker-helm.git',
-                    credentialsId: 'git'
+                    credentialsId: 'jenkins-github'
             }
         }
 
